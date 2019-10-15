@@ -11,6 +11,26 @@ public static class Noise
     {
         float[,] noiseMap = new float[width, height];
 
-   
+        //Handle divide by zero
+
+        if (noiseScale == 0)
+        {
+            noiseScale = 0.00001f;
+        }
+
+        for (int x=0; x < width; x++)
+        {
+            for (int y=0; y < height; y++)
+            {
+                float sampleX = x / noiseScale;
+                float sampleY = y / noiseScale;
+
+                float perlinValue = Mathf.PerlinNoise(sampleX, sampleY);
+                noiseMap[x, y] = perlinValue;
+            }
+        }
+
+        return noiseMap; 
+
     }
 }
