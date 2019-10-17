@@ -13,11 +13,38 @@ public class MapGenerator : MonoBehaviour
 
     public bool autoUpdate;
 
+    public int octaves;
+    [Range(0,1)]
+    public float persistence;
+    public float lacunarity;
+
+    public Vector2 offset;
+
     public void GenerateMap()
     {
-        float[,] noiseMap = Noise.GenerateNoiseMap(width, height, noiseScale);
+        float[,] noiseMap = Noise.GenerateNoiseMap(width, height, noiseScale, octaves, lacunarity, persistence, offset);
 
         MapDisplay display = FindObjectOfType<MapDisplay>();
         display.DrawNoiseMap(noiseMap);
+    }
+
+    void OnValidate()
+    {
+        if (width < 1)
+        {
+            width = 1;
+        }
+        if (height < 1)
+        {
+            height = 1;
+        }
+        if (octaves < 0)
+        {
+            octaves = 0;
+        }
+        if (lacunarity < 1)
+        {
+            lacunarity = 1;
+        }
     }
 }

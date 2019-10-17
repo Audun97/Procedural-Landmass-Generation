@@ -177,10 +177,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52551090642d61746acaeccbd12cb76b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 74
-  height: 55
-  noiseScale: 13.04
+  width: 50
+  height: 50
+  noiseScale: 11.14
   autoUpdate: 1
+  octaves: 4
+  persistence: 0.533
+  lacunarity: 2.02
+  offset: {x: 0, y: 0}
 --- !u!1 &1420831219
 GameObject:
   m_ObjectHideFlags: 0
@@ -254,7 +258,7 @@ Transform:
   m_GameObject: {fileID: 1420831219}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 74, y: 1, z: 55}
+  m_LocalScale: {x: 50, y: 1, z: 50}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
