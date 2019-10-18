@@ -7,6 +7,9 @@ using UnityEngine;
 
 public class MapGenerator : MonoBehaviour
 {
+    public enum DrawMode { NoiseMap, ColourMap };
+    public DrawMode drawMode;
+
     public int width;
     public int height;
     public float noiseScale;
@@ -14,19 +17,50 @@ public class MapGenerator : MonoBehaviour
     public bool autoUpdate;
 
     public int octaves;
-    [Range(0,1)]
+    [Range(0, 1)]
     public float persistence;
     public float lacunarity;
 
     public Vector2 offset;
 
+    public TerrainType[] regions;
+
     public void GenerateMap()
     {
         float[,] noiseMap = Noise.GenerateNoiseMap(width, height, noiseScale, octaves, lacunarity, persistence, offset);
+        Color[] colourMap = new Color[width * height];
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                float currentAltitude = noiseMap[x, y];
+
+                // set each altitude per pixel to coulour defined in struct
+                for (int i = 0; i < regions.Length; i++)
+                {
+                    if (currentAltitude <= regions[i].altitude)
+                    {
+                        colourMap[y * width + x] = regions[i].colour;
+                        break;
+                    }
+                }
+            }
+        }
 
         MapDisplay display = FindObjectOfType<MapDisplay>();
-        display.DrawNoiseMap(noiseMap);
+
+        if (drawMode == DrawMode.NoiseMap)
+        {
+            display.DrawNoiseMap(noiseMap);
+        }
+        else if (drawMode == DrawMode.ColourMap)
+        {
+
+        }
+
     }
+
 
     void OnValidate()
     {
@@ -46,5 +80,16 @@ public class MapGenerator : MonoBehaviour
         {
             lacunarity = 1;
         }
+    }
+
+    //So that it will show up in the inspector
+    [System.Serializable]
+    public struct TerrainType
+    {
+        public string name;
+        public float altitude;
+        public Color colour;
+
+
     }
 }

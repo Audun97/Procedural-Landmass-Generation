@@ -182,9 +182,19 @@ MonoBehaviour:
   noiseScale: 11.14
   autoUpdate: 1
   octaves: 4
-  persistence: 0.533
+  persistence: 0.468
   lacunarity: 2.02
   offset: {x: 0, y: 0}
+  regions:
+  - name: Water
+    altitude: 0.4
+    colour: {r: 0, g: 0.46726084, b: 0.8490566, a: 0}
+  - name: Beach
+    altitude: 0.5
+    colour: {r: 1, g: 0.90584874, b: 0.6084906, a: 0}
+  - name: Grass land
+    altitude: 1
+    colour: {r: 0.038053967, g: 0.7075472, b: 0, a: 0}
 --- !u!1 &1420831219
 GameObject:
   m_ObjectHideFlags: 0
