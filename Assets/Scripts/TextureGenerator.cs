@@ -2,28 +2,38 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TextureGenerator
+//This class will have a method which creates a texture from a one-dimensional colormap
+public static class TextureGenerator
 {
+    public static Texture2D TextureFromColourmap(Color[] colourMap, int width, int height)
+    {
+        Texture2D texture = new Texture2D(width, height);
+        texture.filterMode = FilterMode.Point;
+        texture.wrapMode = TextureWrapMode.Clamp;
+        texture.SetPixels(colourMap);
+        texture.Apply();
+        return texture;
+    }
 
-    // (0) and (1) refers to the dimensions
-    int mapWidth = noiseMap.GetLength(0);
-    int mapHeight = noiseMap.GetLength(1);
+    public static Texture2D TextureFromNoisemap(float[,] noiseMap)
+    {
+        // (0) and (1) refers to the dimensions
+        int width = noiseMap.GetLength(0);
+        int height = noiseMap.GetLength(1);
 
-    Texture2D texture = new Texture2D(mapWidth, mapHeight);
+        // It is all more efficient when I first put all the values in an Array and then set the Pixels
+        // Note that the Color Array is only one dimensional
 
-    // It is all more efficient when I first put all the values in an Array and then set the Pixels
-    // Note that the Color Array is only one dimensional
+        Color[] colourMap = new Color[width * height];
 
-    Color[] mapColour = new Color[mapWidth * mapHeight];
-
-        for (int y = 0; y<mapHeight; y++)
+        for (int y = 0; y < height; y++)
         {
-            for (int x = 0; x<mapWidth; x++)
+            for (int x = 0; x < width; x++)
             {
-                mapColour[y * mapWidth + x] = Color.Lerp(Color.black, Color.white, noiseMap[x, y]);
+                colourMap[y * width + x] = Color.Lerp(Color.black, Color.white, noiseMap[x, y]);
             }
         }
 
-        texture.SetPixels(mapColour);
-        texture.Apply();
+        return TextureFromColourmap(colourMap, width, height);
+    }
 }

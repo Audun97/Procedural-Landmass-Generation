@@ -7,7 +7,7 @@ using UnityEngine;
 
 public static class Noise
 {
-    public static float [,] GenerateNoiseMap (int width, int height, float noiseScale, int octaves, float lacunarity, float persistence, Vector2 offset)
+    public static float [,] GenerateNoiseMap (int width, int height, int seed, float noiseScale, int octaves, float lacunarity, float persistence, Vector2 offset)
     {
         float[,] noiseMap = new float[width, height];
 
@@ -18,7 +18,7 @@ public static class Noise
         float halfHeight = height / 2f;
 
         //so we wanna get lots of uniqe noisemaps. To do that we'll make each octave sample its points from random locations
-        System.Random random = new System.Random();
+        System.Random random = new System.Random(seed);
         Vector2 [] octaveOffsets = new Vector2 [octaves];
 
         for (int i = 0; i < octaves; i++)

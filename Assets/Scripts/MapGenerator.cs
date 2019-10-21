@@ -21,13 +21,17 @@ public class MapGenerator : MonoBehaviour
     public float persistence;
     public float lacunarity;
 
+    public int seed;
+    
     public Vector2 offset;
 
     public TerrainType[] regions;
 
     public void GenerateMap()
     {
-        float[,] noiseMap = Noise.GenerateNoiseMap(width, height, noiseScale, octaves, lacunarity, persistence, offset);
+        float[,] noiseMap = Noise.GenerateNoiseMap(width, height, seed, noiseScale, octaves, lacunarity, persistence, offset);
+
+        // we wanna assign colors to specific altitude values
         Color[] colourMap = new Color[width * height];
 
         for (int x = 0; x < width; x++)
@@ -52,11 +56,11 @@ public class MapGenerator : MonoBehaviour
 
         if (drawMode == DrawMode.NoiseMap)
         {
-            display.DrawNoiseMap(noiseMap);
+            display.DrawTexture(TextureGenerator.TextureFromNoisemap(noiseMap));
         }
         else if (drawMode == DrawMode.ColourMap)
         {
-
+            display.DrawTexture(TextureGenerator.TextureFromColourmap(colourMap, width, height));
         }
 
     }
