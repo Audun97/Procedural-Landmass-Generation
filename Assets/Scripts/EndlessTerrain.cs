@@ -4,14 +4,14 @@ using UnityEngine;
 
 public class EndlessTerrain : MonoBehaviour
 {
-    public const float maxViewDistance = 300;
+    public const float maxViewDistance = 500;
     public Transform viewer;
     public static Vector2 viewerPosition;
     int chunkSize;
     int chunkVisable;
 
     Dictionary<Vector2, TerrainChunk> terrainChunkDictionary = new Dictionary<Vector2, TerrainChunk>();
-
+    List<TerrainChunk> TerrainChunksOutOfSight = new List<TerrainChunk>();
 
     // Start is called before the first frame update
     void Start()
@@ -25,6 +25,13 @@ public class EndlessTerrain : MonoBehaviour
         int currentChunkCordX = Mathf.RoundToInt(viewerPosition.x / chunkSize);
         int currentChunkCordY = Mathf.RoundToInt(viewerPosition.y / chunkSize);
 
+        // Lets loop through all the Chunks which are out of sight
+
+        for (int i = 0; i< TerrainChunksOutOfSight.Count; i++)
+        {
+            TerrainChunksOutOfSight[i].SetVisable(false);
+        }
+
         for (int offsetX = -chunkVisable; offsetX < chunkVisable; offsetX++)
         {
             for (int offsetY =-chunkVisable; offsetY < chunkVisable; offsetY++)
@@ -34,6 +41,11 @@ public class EndlessTerrain : MonoBehaviour
                 if (terrainChunkDictionary.ContainsKey(viewedChunkCord)) 
                 {
                     terrainChunkDictionary[viewedChunkCord].UpdateTerrainChunk();
+
+                    if (terrainChunkDictionary[viewedChunkCord].IsVisable())
+                    {
+                        TerrainChunksOutOfSight.Add(terrainChunkDictionary[viewedChunkCord]);
+                    }
                 }
                 else
                 {
@@ -46,7 +58,8 @@ public class EndlessTerrain : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        viewerPosition = new Vector2(viewer.position.x, viewer.position.z);
+        UpdateVisableChunks();
     }
     public class TerrainChunk
     {
@@ -75,6 +88,10 @@ public class EndlessTerrain : MonoBehaviour
         public void SetVisable (bool visable)
         {
             meshObject.SetActive(visable);
+        }
+        public bool IsVisable() 
+        {
+            return meshObject.activeSelf;
         }
     }
 }
