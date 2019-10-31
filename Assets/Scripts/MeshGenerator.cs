@@ -5,8 +5,9 @@ using UnityEngine;
 public static class MeshGenerator
 {
     // We'll return the meshData because Unity has a limitation when it comes to multithreading
-    public static MeshData GenerateTerrainMesh (float [,] heightMap, float heightMultiplier, AnimationCurve meshHeightCurve, int levelOfDetail)
+    public static MeshData GenerateTerrainMesh (float [,] heightMap, float heightMultiplier, AnimationCurve _meshHeightCurve, int levelOfDetail)
     {
+        AnimationCurve meshHeightCurve = new AnimationCurve(_meshHeightCurve.keys);
         int width = heightMap.GetLength(0);
         int height = heightMap.GetLength(1);
         float topRightX = (width - 1) / -2f;
