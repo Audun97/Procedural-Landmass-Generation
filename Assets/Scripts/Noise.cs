@@ -7,15 +7,20 @@ using UnityEngine;
 
 public static class Noise
 {
-    public static float [,] GenerateNoiseMap (int width, int height, int seed, float noiseScale, int octaves, float lacunarity, float persistence, Vector2 offset)
+    public enum NormalizeMode {Local, Gloal};
+    public static float [,] GenerateNoiseMap (int width, int height, int seed, float noiseScale, int octaves, float lacunarity, float persistence, Vector2 offset, NormalizeMode normalizeMode)
     {
         float[,] noiseMap = new float[width, height];
 
-        float maxNoiseHeight = float.MinValue;
-        float minNoiseHeight = float.MaxValue;
+        float maxPossibleNoiseHeight = 0;
+
+        float maxLocalNoiseHeight = float.MinValue;
+        float minLocalNoiseHeight = float.MaxValue;
 
         float halfWidth = width / 2f;
         float halfHeight = height / 2f;
+
+        float amplitude = 1;
 
         //so we wanna get lots of uniqe noisemaps. To do that we'll make each octave sample its points from random locations
         System.Random random = new System.Random(seed);
@@ -24,9 +29,18 @@ public static class Noise
         for (int i = 0; i < octaves; i++)
         {
             float offsetX = random.Next(-100000, 100000) + offset.x;
-            float offsetY = random.Next(-100000, 100000) + offset.y;
+            float offsetY = random.Next(-100000, 100000) - offset.y;
 
             octaveOffsets [i] = new Vector2 (offsetX, offsetY);
+
+            // we want toto assign the right value to the maxPossibleNoiseHeight. To do this we set the perlinvalue equal to 1 every octave
+
+            maxPossibleNoiseHeight += amplitude;
+
+            //amplituse is also dependant on persistence
+            amplitude *= persistence;
+
+
         }
 
         //Handle divide by zero
@@ -40,7 +54,7 @@ public static class Noise
         {
             for (int y = 0; y < height; y++)
             {
-                float amplitude = 1;
+                amplitude = 1;
                 float frequency = 1;
                 float noiseHeight = 0;
 
@@ -49,8 +63,8 @@ public static class Noise
                 {
                     //the higher the frequency the farther away the sample points will be. 
 
-                    float sampleX = (x-halfWidth) / noiseScale * frequency + octaveOffsets[i].x;
-                    float sampleY = (y-halfHeight) / noiseScale * frequency + octaveOffsets[i].y;
+                    float sampleX = (x-halfWidth + octaveOffsets[i].x) / noiseScale * frequency;
+                    float sampleY = (y-halfHeight + octaveOffsets[i].y) / noiseScale * frequency;
 
                     //Letting our noise have negative values makes the noise more interesting
                     float perlinValue = Mathf.PerlinNoise(sampleX, sampleY) * 2 - 1;
@@ -70,25 +84,44 @@ public static class Noise
 
                 // so now we need to normalaize the values again to make them fit between 0 and 1
                 //look to the setting of the max- and minheightvalues
-                if (noiseHeight < minNoiseHeight)
+                if (noiseHeight < minLocalNoiseHeight)
                 {
-                    minNoiseHeight = noiseHeight;
+                    minLocalNoiseHeight = noiseHeight;
                 }
-                else if (noiseHeight > maxNoiseHeight)
+                else if (noiseHeight > maxLocalNoiseHeight)
                 {
-                    maxNoiseHeight = noiseHeight;
+                    maxLocalNoiseHeight = noiseHeight;
                 }
 
                 noiseMap[x, y] = noiseHeight;
             }
         }
 
+        //This only works for one Chunk
+
         // Normalizing
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
             {
-                noiseMap[x, y] = Mathf.InverseLerp(maxNoiseHeight, minNoiseHeight, noiseMap[x, y]);
+                if (normalizeMode == NormalizeMode.Local)
+                {
+                    //This only works for one Chunk because maxLocalNoiseHeight and minLocalNoiseHeight will have slightly different values for for other chunks
+
+                    /*this function returns a value between 1 and 0. The maxLocalNoiseHeight and minLocalNoiseHeight values define the start and end of the line. 
+                     * noiseMap[x, y] is a location between a and b. 
+                     */
+                    noiseMap[x, y] = Mathf.InverseLerp(maxLocalNoiseHeight, minLocalNoiseHeight, noiseMap[x, y]);
+                }
+                else
+                {
+                    //we need to reverse the opersation which let us have negative perlin values
+                    //then we devide by the maxPossibleNoiseHeight
+                    //why divide by maxPossibleNoiseHeight?
+                    //our noiseMap[x, y] is never going to get any close to the maxPossibleNoiseHeight. Therefore we are going to lower it a bit
+                    float globalHeight = (noiseMap[x, y] + 1) / (2f * maxPossibleNoiseHeight / 1.5f);
+                    noiseMap[x, y] = Mathf.Clamp(globalHeight, 0 , int.MaxValue);
+                }
             }
         }
 

@@ -11,7 +11,7 @@ public class MapGenerator : MonoBehaviour
 {
     public enum DrawMode {NoiseMap, ColourMap, Mesh};
     public DrawMode drawMode;
-
+    public Noise.NormalizeMode normalizeMode;
     public const int mapChunkSize = 241;
     [Range (0,6)]
     public int editorPreviewLOD;
@@ -118,7 +118,7 @@ public class MapGenerator : MonoBehaviour
 
     MapData GenerateMapData(Vector2 centre)
     {
-        float[,] heightMap = Noise.GenerateNoiseMap(mapChunkSize, mapChunkSize, seed, noiseScale, octaves, lacunarity, persistence, centre + offset);
+        float[,] heightMap = Noise.GenerateNoiseMap(mapChunkSize, mapChunkSize, seed, noiseScale, octaves, lacunarity, persistence, centre + offset, normalizeMode);
 
         // we wanna assign colors to specific altitude values
         Color[] colourMap = new Color[mapChunkSize * mapChunkSize];
@@ -127,14 +127,19 @@ public class MapGenerator : MonoBehaviour
         {
             for (int y = 0; y < mapChunkSize; y++)
             {
+                // in gobal normalized mode we can not assume that currentAltitude is between 0 and 1
                 float currentAltitude = heightMap[x, y];
 
                 // set each altitude per pixel to coulour defined in struct
                 for (int i = 0; i < regions.Length; i++)
                 {
-                    if (currentAltitude <= regions[i].altitude)
+                    if (currentAltitude >= regions[i].altitude)
                     {
                         colourMap[y * mapChunkSize + x] = regions[i].colour;
+                    }
+                    else
+                    {
+                        //break only when value currentAltitude is smaller than a defined regions altitude
                         break;
                     }
                 }
