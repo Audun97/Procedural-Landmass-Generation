@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class EndlessTerrain : MonoBehaviour
 {
-    const float playerScale = 10f;
+    const float playerScale = 2f;
     const float viewerMoveThresholdForChunkUpdate = 25f;
     //easier to calculate squere distance because u don't have to do a sqrt operation
     const float sqrViewerMoveThresholdForChunkUpdate = viewerMoveThresholdForChunkUpdate * viewerMoveThresholdForChunkUpdate;
