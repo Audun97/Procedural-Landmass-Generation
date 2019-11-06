@@ -5,7 +5,7 @@ using UnityEngine;
 public static class MeshGenerator
 {
     // We'll return the meshData because Unity has a limitation when it comes to multithreading
-    public static MeshData GenerateTerrainMesh (float [,] heightMap, float heightMultiplier, AnimationCurve _meshHeightCurve, int levelOfDetail)
+    public static MeshData GenerateTerrainMesh (float [,] heightMap, float heightMultiplier, AnimationCurve _meshHeightCurve, int levelOfDetail, bool useFlatShading)
     {
         AnimationCurve meshHeightCurve = new AnimationCurve(_meshHeightCurve.keys);
         int width = heightMap.GetLength(0);
@@ -15,7 +15,7 @@ public static class MeshGenerator
         int meshSimplificationIncrement = (levelOfDetail == 0)?1:levelOfDetail * 2;
         int verticesPerLine = (width - 1) / meshSimplificationIncrement + 1;
 
-        MeshData meshData = new MeshData(verticesPerLine, verticesPerLine);
+        MeshData meshData = new MeshData(verticesPerLine, verticesPerLine, useFlatShading);
 
         int vertexIndex = 0;
 
@@ -37,6 +37,7 @@ public static class MeshGenerator
                 vertexIndex++;
             }
         }
+        meshData.FlatShading();
         return meshData;
     }
 }
@@ -45,13 +46,15 @@ public class MeshData
 {
     public Vector3[] vertices;
     public int[] triangles;
-    public Vector2[] uvs; 
+    public Vector2[] uvs;
+    public bool useFlatShading;
     // let's create a UV Map which we can apply to our texture
 
     int triangleIndex;
 
-    public MeshData (int width, int height)
+    public MeshData (int width, int height, bool useFlatShading)
     {
+        this.useFlatShading = useFlatShading;
         vertices = new Vector3[width * height];
         triangles = new int[(width-1)*(height-1)*6];
         uvs = new Vector2[width * height];
@@ -66,7 +69,25 @@ public class MeshData
 
         triangleIndex += 3;
     }
+    public void FlatShading()
+    {
+        if (useFlatShading)
+        {
 
+            Vector3[] flatShadedVertices = new Vector3[triangles.Length];
+            Vector2[] flatShadedUvs = new Vector2[triangles.Length];
+
+            for (int i = 0; i < triangles.Length; i++)
+            {
+                flatShadedVertices[i] = vertices[triangles[i]];
+                flatShadedUvs[i] = uvs[triangles[i]];
+                triangles[i] = i;
+            }
+
+            vertices = flatShadedVertices;
+            uvs = flatShadedUvs;
+        }
+    }
     public Mesh CreateMesh ()
     {
         Mesh mesh = new Mesh ();

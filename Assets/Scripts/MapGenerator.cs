@@ -12,7 +12,8 @@ public class MapGenerator : MonoBehaviour
     public enum DrawMode {NoiseMap, ColourMap, Mesh};
     public DrawMode drawMode;
     public Noise.NormalizeMode normalizeMode;
-    public const int mapChunkSize = 241;
+    public const int mapChunkSize = 95;
+    public bool useFlatShading;
     [Range (0,6)]
     public int editorPreviewLOD;
 
@@ -63,7 +64,7 @@ public class MapGenerator : MonoBehaviour
 
     void MeshDataThread(MapData mapData, int lod, Action<MeshData> callback)
     {
-        MeshData meshData = MeshGenerator.GenerateTerrainMesh(mapData.heightMap, heightMultiplier, meshHeightCurve, lod);
+        MeshData meshData = MeshGenerator.GenerateTerrainMesh(mapData.heightMap, heightMultiplier, meshHeightCurve, lod, useFlatShading);
         lock (mapDataThreadInfoQueue)
         {
             //add data to queue
@@ -111,7 +112,7 @@ public class MapGenerator : MonoBehaviour
         }
         else if (drawMode == DrawMode.Mesh)
         {
-            display.DrawMesh(MeshGenerator.GenerateTerrainMesh(mapData.heightMap, heightMultiplier, meshHeightCurve, editorPreviewLOD), TextureGenerator.TextureFromColourmap(mapData.colourMap, mapChunkSize, mapChunkSize));
+            display.DrawMesh(MeshGenerator.GenerateTerrainMesh(mapData.heightMap, heightMultiplier, meshHeightCurve, editorPreviewLOD, useFlatShading), TextureGenerator.TextureFromColourmap(mapData.colourMap, mapChunkSize, mapChunkSize));
         }
         
     }

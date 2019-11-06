@@ -4,7 +4,8 @@ using System.Collections.Generic;
 
 public class EndlessTerrain : MonoBehaviour
 {
-    const float playerScale = 2f;
+
+    const float playerScale = 5f;
     const float viewerMoveThresholdForChunkUpdate = 25f;
     //easier to calculate squere distance because u don't have to do a sqrt operation
     const float sqrViewerMoveThresholdForChunkUpdate = viewerMoveThresholdForChunkUpdate * viewerMoveThresholdForChunkUpdate;
@@ -42,13 +43,13 @@ public class EndlessTerrain : MonoBehaviour
     void Update()
     {
         viewerPosition = new Vector2(viewer.position.x, viewer.position.z) / playerScale;
-        
-        if ((viewerPositionOld - viewerPosition).sqrMagnitude > sqrViewerMoveThresholdForChunkUpdate) 
+
+        if ((viewerPositionOld - viewerPosition).sqrMagnitude > sqrViewerMoveThresholdForChunkUpdate)
         {
             viewerPositionOld = viewerPosition;
             UpdateVisibleChunks();
         }
-        
+
     }
 
     void UpdateVisibleChunks()
@@ -122,7 +123,7 @@ public class EndlessTerrain : MonoBehaviour
             for (int i = 0; i < detailLevels.Length; i++)
             {
                 lodMeshes[i] = new LODMesh(detailLevels[i].lod, UpdateTerrainChunk);
-                
+
                 if (detailLevels[i].useForCollider)
                 {
                     collisionLODMesh = lodMeshes[i];
@@ -149,7 +150,7 @@ public class EndlessTerrain : MonoBehaviour
             {
                 float viewerDstFromNearestEdge = Mathf.Sqrt(bounds.SqrDistance(viewerPosition));
                 bool visible = viewerDstFromNearestEdge <= maxViewDst;
-               
+
 
                 if (visible)
                 {
@@ -197,7 +198,7 @@ public class EndlessTerrain : MonoBehaviour
                 SetVisible(visible);
             }
         }
-            
+
         public void SetVisible(bool visible)
         {
             meshObject.SetActive(visible);
@@ -223,15 +224,15 @@ public class EndlessTerrain : MonoBehaviour
             this.lod = lod;
             this.updateCallback = updateCallback;
         }
-        
-        public void OnMeshDataReceived (MeshData meshData)
+
+        public void OnMeshDataReceived(MeshData meshData)
         {
             mesh = meshData.CreateMesh();
             hasMesh = true;
 
             updateCallback();
         }
-        public void RequestMesh (MapData mapData)
+        public void RequestMesh(MapData mapData)
         {
             hasRequstedMesh = true;
             mapGenerator.RequestMeshData(mapData, lod, OnMeshDataReceived);
@@ -244,8 +245,7 @@ public class EndlessTerrain : MonoBehaviour
         public float visableDstThreshold;
         public bool useForCollider;
     }
-
 }
-
+    
 
 
